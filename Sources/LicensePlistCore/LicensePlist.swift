@@ -28,6 +28,7 @@ public final class LicensePlist {
 }
 
 private func readCartfile(path: URL, cachePath: URL? = nil) -> GitHubLibraryConfigFile {
+    let path = path.deletingPathExtension()
     if path.lastPathComponent != Consts.cartfileName {
         fatalError("Invalid Cartfile name: \(path.lastPathComponent)")
     }
