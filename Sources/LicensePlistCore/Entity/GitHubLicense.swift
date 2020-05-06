@@ -5,7 +5,7 @@ import Result
 public struct GitHubLicense: License, Equatable {
     public let library: GitHub
     public let body: String
-    let githubResponse: LicenseResponse
+    let githubResponse: LicenseResponse?
 
     public static func==(lhs: GitHubLicense, rhs: GitHubLicense) -> Bool {
         return lhs.library == rhs.library &&
@@ -26,6 +26,15 @@ extension GitHubLicense {
         let name = library.name
         Log.info("license download start(owner: \(owner), name: \(name))")
         return ResultOperation<GitHubLicense, DownloadError> { _ in
+            if let cached = library.cachedPath {
+                switch Result(attempt: { try String(contentsOf: cached) }) {
+                case .failure(let err):
+                    return .failure(.unexpected(err))
+                case .success(let body):
+                    return .success(GitHubLicense(library: library, body: body, githubResponse: nil))
+                }
+            }
+            
             let result = Session.shared.lp.sendSync(RepoRequests.License(owner: owner, repo: name))
             switch result {
             case .failure(let error):

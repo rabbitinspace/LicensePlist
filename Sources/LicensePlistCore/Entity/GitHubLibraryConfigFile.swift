@@ -1,12 +1,21 @@
+import Foundation
+
 public struct GitHubLibraryConfigFile: Equatable {
     let type: GitHubLibraryConfigFileType
     let content: String?
+    let cachePath: URL?
+    
+    init(type: GitHubLibraryConfigFileType, content: String?, cachePath: URL? = nil) {
+        self.type = type
+        self.content = content
+        self.cachePath = cachePath
+    }
 }
 
 extension GitHubLibraryConfigFile {
-    static func carthage(content: String?) -> GitHubLibraryConfigFile { return .init(type: .carthage, content: content) }
-    static func mint(content: String?) -> GitHubLibraryConfigFile { return .init(type: .mint, content: content) }
-    static func licensePlist(content: String?) -> GitHubLibraryConfigFile { return .init(type: .licensePlist, content: content) }
+    static func carthage(content: String?, cachePath: URL? = nil) -> GitHubLibraryConfigFile { return .init(type: .carthage, content: content, cachePath: cachePath) }
+    static func mint(content: String?) -> GitHubLibraryConfigFile { return .init(type: .mint, content: content, cachePath: nil) }
+    static func licensePlist(content: String?) -> GitHubLibraryConfigFile { return .init(type: .licensePlist, content: content, cachePath: nil) }
 }
 
 public enum GitHubLibraryConfigFileType: Int, CaseIterable {

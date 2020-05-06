@@ -11,6 +11,7 @@ private func loadConfig(configPath: URL) -> Config {
 }
 
 let main = command(Option("cartfile-path", default: Consts.cartfileName),
+                   Option("carthage-checkouts-path", default: ""),
                    Option("mintfile-path", default: Consts.mintfileName),
                    Option("pods-path", default: Consts.podsDirectoryName),
                    Option("package-path", default: Consts.packageName),
@@ -25,7 +26,7 @@ let main = command(Option("cartfile-path", default: Consts.cartfileName),
                    Flag("add-version-numbers"),
                    Flag("suppress-opening-directory"),
                    Flag("single-page"),
-                   Flag("fail-if-missing-license")) { cartfile, mintfile, podsPath, packagePath, xcodeprojPath, output, gitHubToken, configPath, prefix, htmlPath, markdownPath, force, version, suppressOpen, singlePage, failIfMissingLicense in
+                   Flag("fail-if-missing-license")) { cartfile, carthageCheckoutsPath, mintfile, podsPath, packagePath, xcodeprojPath, output, gitHubToken, configPath, prefix, htmlPath, markdownPath, force, version, suppressOpen, singlePage, failIfMissingLicense in
 
                     Logger.configure()
                     var config = loadConfig(configPath: URL(fileURLWithPath: configPath))
@@ -36,6 +37,7 @@ let main = command(Option("cartfile-path", default: Consts.cartfileName),
                     config.failIfMissingLicense = failIfMissingLicense
                     let options = Options(outputPath: URL(fileURLWithPath: output),
                                           cartfilePath: URL(fileURLWithPath: cartfile),
+                                          carthageCheckoutsPath: URL(fileURLWithPath: carthageCheckoutsPath),
                                           mintfilePath: URL(fileURLWithPath: mintfile),
                                           podsPath: URL(fileURLWithPath: podsPath),
                                           packagePath: URL(fileURLWithPath: packagePath),

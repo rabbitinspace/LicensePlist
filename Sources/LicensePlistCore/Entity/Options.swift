@@ -3,6 +3,7 @@ import Foundation
 public struct Options {
     public let outputPath: URL
     public let cartfilePath: URL
+    public let carthageCheckoutsPath: URL
     public let mintfilePath: URL
     public let podsPath: URL
     public let packagePath: URL
@@ -15,6 +16,7 @@ public struct Options {
 
     public static let empty = Options(outputPath: URL(fileURLWithPath: ""),
                                       cartfilePath: URL(fileURLWithPath: ""),
+                                      carthageCheckoutsPath: URL(fileURLWithPath: ""),
                                       mintfilePath: URL(fileURLWithPath: ""),
                                       podsPath: URL(fileURLWithPath: ""),
                                       packagePath: URL(fileURLWithPath: ""),
@@ -27,6 +29,7 @@ public struct Options {
 
     public init(outputPath: URL,
                 cartfilePath: URL,
+                carthageCheckoutsPath: URL,
                 mintfilePath: URL,
                 podsPath: URL,
                 packagePath: URL,
@@ -38,6 +41,7 @@ public struct Options {
                 config: Config) {
         self.outputPath = outputPath
         self.cartfilePath = cartfilePath
+        self.carthageCheckoutsPath = carthageCheckoutsPath
         self.mintfilePath = mintfilePath
         self.podsPath = podsPath
         self.packagePath = packagePath

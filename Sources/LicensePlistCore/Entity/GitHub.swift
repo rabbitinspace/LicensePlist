@@ -7,6 +7,15 @@ public struct GitHub: Library {
     public let nameSpecified: String?
     var owner: String
     public let version: String?
+    public let cachedPath: URL?
+    
+    init(name: String, nameSpecified: String?, owner: String, version: String?, cachedPath: URL? = nil) {
+        self.name = name
+        self.nameSpecified = nameSpecified
+        self.owner = owner
+        self.version = version
+        self.cachedPath = cachedPath
+    }
 }
 
 extension GitHub {
@@ -60,8 +69,36 @@ extension GitHub {
             return GitHub(name: name,
                           nameSpecified: renames[name],
                           owner: nsContent.substring(with: match.range(at: 1)),
-                          version: version)
+                          version: version,
+                          cachedPath: Self.findCachedLicense(for: file, name: name))
             }
             .compactMap { $0 }
+    }
+    
+    private static func findCachedLicense(for file: GitHubLibraryConfigFile, name: String) -> URL? {
+        guard let caches = file.cachePath else {
+            return nil
+        }
+        
+        let empty = URL(fileURLWithPath: "")  // to prevent github calls when cache dir is specified
+        let dir = caches.appendingPathComponent(name)
+        guard (try? caches.checkResourceIsReachable()) ?? false else {
+            return empty
+        }
+        
+        let children = (try? FileManager.default.contentsOfDirectory(
+            at: dir,
+            includingPropertiesForKeys: nil,
+            options: [.skipsHiddenFiles, .skipsPackageDescendants]
+        )) ?? []
+        
+        for child in children {
+            let name = child.lastPathComponent.lowercased()
+            if name.starts(with: "license") || name.starts(with: "licence") {
+                return child
+            }
+        }
+        
+        return empty
     }
 }
