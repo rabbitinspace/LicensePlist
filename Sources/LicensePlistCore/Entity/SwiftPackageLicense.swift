@@ -1,0 +1,60 @@
+import Foundation
+
+struct SwiftPackageLicense: License, Equatable {
+    public let library: SwiftPackage
+    public let body: String
+}
+
+extension SwiftPackageLicense {
+    public enum SearchError: Error {
+        case resourceReadFiled(URL)
+    }
+    
+    public static func find(atCheckoutDir dir: URL, for packages: [SwiftPackage]) throws -> [SwiftPackageLicense] {
+        var licenses = [SwiftPackageLicense]()
+        let packages = Dictionary(uniqueKeysWithValues: packages.map({ ($0.name, $0) }))
+        for subdir in try FileManager.default.contentsOfDirectory(atPath: dir.path) {
+            var isDir: ObjCBool = false
+            guard let package = packages[subdir] else { continue }
+            guard FileManager.default.fileExists(atPath: subdir, isDirectory: &isDir), isDir.boolValue else { continue }
+            
+            for item in try FileManager.default.contentsOfDirectory(atPath: subdir) {
+                guard isLicense(name: item) else { continue }
+                licenses.append(contentsOf: try readLicenses(at: item, for: package))
+            }
+        }
+        
+        return licenses
+    }
+}
+
+private func isLicense(name: String) -> Bool {
+    let lower = name.lowercased()
+    guard lower.starts(with: "license") || lower.starts(with: "licence") else {
+        return false
+    }
+    
+    // check if there's a file extension next
+    let next = lower.dropFirst(7)  // drop "license" or "licence"
+    if next.isEmpty {
+        return true  // no file extension, it's a license file
+    }
+    
+    if next.first != "." {
+        return false  // no file extension, it's not a license file
+    }
+    
+    return true
+}
+
+private func readLicenses(at path: String, for package: SwiftPackage) throws -> [SwiftPackageLicense] {
+    var isDir: ObjCBool = false
+    guard FileManager.default.fileExists(atPath: path, isDirectory: &isDir), isDir.boolValue else { return [] }
+    
+    guard isDir.boolValue else {
+        let body = try String(contentsOfFile: path)
+        return [SwiftPackageLicense(library: package, body: body)]
+    }
+    
+    return []
+}

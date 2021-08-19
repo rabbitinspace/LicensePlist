@@ -19,6 +19,18 @@ public struct SwiftPackage: Decodable, Equatable {
     let state: State
 }
 
+extension SwiftPackage: Library {
+    public var version: String? { state.version }
+    public var name: String { package }
+    public var nameSpecified: String? { nil }
+}
+
+extension SwiftPackage: CustomStringConvertible {
+    public var description: String {
+        return "name: \(name), nameSpecified: \(nameSpecified ?? ""), version: \(version ?? "")"
+    }
+}
+
 private struct ResolvedPackages: Decodable {
     struct Pins: Decodable {
         let pins: [SwiftPackage]

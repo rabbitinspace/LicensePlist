@@ -29,6 +29,7 @@ public final class LicensePlist {
         info.loadManualLibraries()
         info.compareWithLatestSummary()
         info.downloadGitHubLicenses()
+        info.loadCachedSwiftPackageLicenses()
         info.collectLicenseInfos()
         info.outputPlist()
         Log.info("End")

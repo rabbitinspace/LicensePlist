@@ -7,6 +7,8 @@ struct PlistInfo {
     var manualLicenses: [ManualLicense]?
     var githubLibraries: [GitHub]?
     var githubLicenses: [GitHubLicense]?
+    var swiftPackages: [SwiftPackage]?
+    var swiftPackageLicenses: [SwiftPackageLicense]?
     var summary: String?
     var summaryPath: URL?
     var licenses: [LicenseInfo]?
@@ -46,9 +48,27 @@ struct PlistInfo {
         Log.info("Swift Package Manager License collect start")
 
         let packages = packageFiles.flatMap { SwiftPackage.loadPackages($0) }
-        let packagesAsGithubLibraries = packages.compactMap { $0.toGitHub(renames: options.config.renames) }.sorted()
+        if options.packageCheckoutsPath != nil {
+            swiftPackages = packages
+            githubLibraries = []
+        } else {
+            let packagesAsGithubLibraries = packages.compactMap { $0.toGitHub(renames: options.config.renames) }.sorted()
+            githubLibraries = (githubLibraries ?? []) + options.config.apply(githubs: packagesAsGithubLibraries)
+            swiftPackages = []
+        }
+    }
 
-        githubLibraries = (githubLibraries ?? []) + options.config.apply(githubs: packagesAsGithubLibraries)
+    mutating func loadCachedSwiftPackageLicenses() {
+        guard let swiftPackages = swiftPackages, let checkoutsDir = options.packageCheckoutsPath else {
+            return
+        }
+
+        do {
+            swiftPackageLicenses = try SwiftPackageLicense.find(atCheckoutDir: checkoutsDir, for: swiftPackages)
+        } catch {
+            print(error)
+            exit(1)
+        }
     }
 
     mutating func loadManualLibraries() {
@@ -59,12 +79,14 @@ struct PlistInfo {
     mutating func compareWithLatestSummary() {
         guard let cocoaPodsLicenses = cocoaPodsLicenses,
             let githubLibraries = githubLibraries,
+            let swiftPackages = swiftPackages,
             let manualLicenses = manualLicenses else { preconditionFailure() }
 
         let config = options.config
 
         let contents = (cocoaPodsLicenses.map { String(describing: $0) } +
             githubLibraries.map { String(describing: $0) } +
+            swiftPackages.map { String(describing: $0) } +
             manualLicenses.map { String(describing: $0) } +
             ["add-version-numbers: \(options.config.addVersionNumbers)", "LicensePlist Version: \(Consts.version)"])
             .joined(separator: "\n\n")
@@ -97,9 +119,10 @@ struct PlistInfo {
     mutating func collectLicenseInfos() {
         guard let cocoaPodsLicenses = cocoaPodsLicenses,
             let githubLicenses = githubLicenses,
+            let swiftLicenses = swiftPackageLicenses,
             let manualLicenses = manualLicenses else { preconditionFailure() }
 
-        licenses = ((cocoaPodsLicenses as [LicenseInfo]) + (githubLicenses as [LicenseInfo]) + (manualLicenses as [LicenseInfo]))
+        licenses = ((cocoaPodsLicenses as [LicenseInfo]) + (githubLicenses as [LicenseInfo]) + (swiftLicenses as [LicenseInfo]) + (manualLicenses as [LicenseInfo]))
             .reduce([String: LicenseInfo]()) { sum, e in
                 var sum = sum
                 sum[e.name] = e
