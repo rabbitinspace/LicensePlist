@@ -65,10 +65,7 @@ struct PlistInfo {
 
         do {
             swiftPackageLicenses = try SwiftPackageLicense.find(atCheckoutDir: checkoutsDir, for: swiftPackages)
-        } catch {
-            print(error)
-            exit(1)
-        }
+        } catch { fatalError(error.localizedDescription) }
     }
 
     mutating func loadManualLibraries() {
@@ -158,11 +155,12 @@ struct PlistInfo {
     }
 
     func reportMissings() {
-        guard let githubLibraries = githubLibraries, let licenses = licenses else { preconditionFailure() }
+        guard let githubLibraries = githubLibraries, let swiftPackages = swiftPackages, let licenses = licenses else { preconditionFailure() }
 
         Log.info("----------Result-----------")
         Log.info("# Missing license:")
-        let missing = Set(githubLibraries.map { $0.name }).subtracting(Set(licenses.map { $0.name }))
+        let allLibraries = (githubLibraries as [HasName]) + (swiftPackages as [HasName])
+        let missing = Set(allLibraries.map { $0.name }).subtracting(Set(licenses.map { $0.name }))
         if missing.isEmpty {
             Log.info("None 🎉")
             return

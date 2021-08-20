@@ -15,7 +15,7 @@ public struct SwiftPackage: Decodable, Equatable {
     }
 
     let package: String
-    let repositoryURL: String
+    let repositoryURL: URL
     let state: State
 }
 
@@ -50,9 +50,9 @@ extension SwiftPackage {
     }
 
     func toGitHub(renames: [String: String]) -> GitHub? {
-        guard repositoryURL.contains("github.com") else { return nil }
+        guard repositoryURL.absoluteString.contains("github.com") else { return nil }
 
-        let urlParts = repositoryURL
+        let urlParts = repositoryURL.absoluteString
             .replacingOccurrences(of: "https://", with: "")
             .replacingOccurrences(of: "http://", with: "")
             .components(separatedBy: "/")

@@ -79,6 +79,7 @@ class PlistInfoTests: XCTestCase {
         target.cocoaPodsLicenses = []
         target.manualLicenses = []
         target.githubLibraries = []
+        target.swiftPackages = []
 
         XCTAssertNil(target.summary)
         XCTAssertNil(target.summaryPath)
@@ -118,13 +119,22 @@ class PlistInfoTests: XCTestCase {
         let manual = Manual(name: "FooBar", source: "https://foo.bar", nameSpecified: nil, version: nil)
         let manualLicense = ManualLicense(library: manual,
                                           body: "body")
+        
+        let swiftPackage = SwiftPackage(package: "Example",
+                                        repositoryURL: URL(string: "https://github.com/example/example.git")!,
+                                        state: .init(branch: nil,
+                                                     revision: nil,
+                                                     version: "1.2.2"))
+        let swiftPackageLicense = SwiftPackageLicense(library: swiftPackage, body: "Do whatever you want")
+        
         target.manualLicenses = [manualLicense]
         target.githubLicenses = [githubLicense]
+        target.swiftPackageLicenses = [swiftPackageLicense]
 
         XCTAssertNil(target.licenses)
         target.collectLicenseInfos()
         let licenses = try XCTUnwrap(target.licenses)
-        XCTAssertEqual(licenses.count, 2)
+        XCTAssertEqual(licenses.count, 3)
         let license = licenses.last
         XCTAssertEqual(license?.name, "LicensePlist")
     }
@@ -152,8 +162,17 @@ class PlistInfoTests: XCTestCase {
                                                                           encoding: "",
                                                                           kind: LicenseKindResponse(name: "name",
                                                                                                     spdxId: nil)))
+        
+        let swiftPackage = SwiftPackage(package: "Example",
+                                        repositoryURL: URL(string: "https://github.com/example/example.git")!,
+                                        state: .init(branch: nil,
+                                                     revision: nil,
+                                                     version: "1.2.2"))
+        let swiftPackageLicense = SwiftPackageLicense(library: swiftPackage, body: "Do whatever you want")
+        
         target.githubLibraries = [github]
-        target.licenses = [githubLicense]
+        target.swiftPackages = [swiftPackage]
+        target.licenses = [githubLicense, swiftPackageLicense]
         target.reportMissings()
     }
 

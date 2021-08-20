@@ -12,15 +12,21 @@ extension SwiftPackageLicense {
     
     public static func find(atCheckoutDir dir: URL, for packages: [SwiftPackage]) throws -> [SwiftPackageLicense] {
         var licenses = [SwiftPackageLicense]()
+        let reponames = Dictionary(uniqueKeysWithValues: packages.map({ ($0.repositoryURL.lastPathComponent.deletingSuffix(".git"), $0) }))
         let packages = Dictionary(uniqueKeysWithValues: packages.map({ ($0.name, $0) }))
         for subdir in try FileManager.default.contentsOfDirectory(atPath: dir.path) {
+            let subdirURL = dir.appendingPathComponent(subdir)
             var isDir: ObjCBool = false
-            guard let package = packages[subdir] else { continue }
-            guard FileManager.default.fileExists(atPath: subdir, isDirectory: &isDir), isDir.boolValue else { continue }
             
-            for item in try FileManager.default.contentsOfDirectory(atPath: subdir) {
+            guard let package = packages[subdir] ?? reponames[subdir] else { continue }
+            guard FileManager.default.fileExists(atPath: subdirURL.path, isDirectory: &isDir), isDir.boolValue else { continue }
+            
+            for item in try FileManager.default.contentsOfDirectory(atPath: subdirURL.path) {
                 guard isLicense(name: item) else { continue }
-                licenses.append(contentsOf: try readLicenses(at: item, for: package))
+                
+                let itemURL = subdirURL.appendingPathComponent(item)
+                licenses.append(contentsOf: try readLicenses(at: itemURL.path, for: package))
+                break
             }
         }
         
@@ -49,7 +55,7 @@ private func isLicense(name: String) -> Bool {
 
 private func readLicenses(at path: String, for package: SwiftPackage) throws -> [SwiftPackageLicense] {
     var isDir: ObjCBool = false
-    guard FileManager.default.fileExists(atPath: path, isDirectory: &isDir), isDir.boolValue else { return [] }
+    guard FileManager.default.fileExists(atPath: path, isDirectory: &isDir) else { return [] }
     
     guard isDir.boolValue else {
         let body = try String(contentsOfFile: path)
