@@ -67,9 +67,10 @@ private func readLicenses(at path: URL, for package: SwiftPackage) throws -> [Sw
         guard isLicense(name: item) else { continue }
         
         let comps = item.split(separator: ".")
-        guard let suffix = comps.last, comps.count > 1 else { continue }
+        guard comps.count > 1 else { continue }
         
-        let package = SwiftPackage(package: String(suffix), repositoryURL: package.repositoryURL, state: package.state)
+        let suffix = comps[1...].joined(separator: ".")
+        let package = SwiftPackage(package: suffix, repositoryURL: package.repositoryURL, state: package.state)
         let body = try String(contentsOfFile: path.appendingPathComponent(item).path)
         licenses.append(SwiftPackageLicense(library: package, body: body))
     }
