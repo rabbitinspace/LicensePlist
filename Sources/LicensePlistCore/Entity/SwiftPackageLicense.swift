@@ -25,7 +25,7 @@ extension SwiftPackageLicense {
                 guard isLicense(name: item) else { continue }
                 
                 let itemURL = subdirURL.appendingPathComponent(item)
-                licenses.append(contentsOf: try readLicenses(at: itemURL.path, for: package))
+                licenses.append(contentsOf: try readLicenses(at: itemURL, for: package))
                 break
             }
         }
@@ -53,14 +53,26 @@ private func isLicense(name: String) -> Bool {
     return true
 }
 
-private func readLicenses(at path: String, for package: SwiftPackage) throws -> [SwiftPackageLicense] {
+private func readLicenses(at path: URL, for package: SwiftPackage) throws -> [SwiftPackageLicense] {
     var isDir: ObjCBool = false
-    guard FileManager.default.fileExists(atPath: path, isDirectory: &isDir) else { return [] }
+    guard FileManager.default.fileExists(atPath: path.path, isDirectory: &isDir) else { return [] }
     
     guard isDir.boolValue else {
-        let body = try String(contentsOfFile: path)
+        let body = try String(contentsOfFile: path.path)
         return [SwiftPackageLicense(library: package, body: body)]
     }
     
-    return []
+    var licenses = [SwiftPackageLicense]()
+    for item in try FileManager.default.contentsOfDirectory(atPath: path.path) {
+        guard isLicense(name: item) else { continue }
+        
+        let comps = item.split(separator: ".")
+        guard let suffix = comps.last, comps.count > 1 else { continue }
+        
+        let package = SwiftPackage(package: String(suffix), repositoryURL: package.repositoryURL, state: package.state)
+        let body = try String(contentsOfFile: path.appendingPathComponent(item).path)
+        licenses.append(SwiftPackageLicense(library: package, body: body))
+    }
+    
+    return licenses
 }

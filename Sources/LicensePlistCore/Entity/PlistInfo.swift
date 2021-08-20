@@ -65,6 +65,7 @@ struct PlistInfo {
 
         do {
             swiftPackageLicenses = try SwiftPackageLicense.find(atCheckoutDir: checkoutsDir, for: swiftPackages)
+            self.swiftPackages = swiftPackageLicenses?.map { $0.library }
         } catch { fatalError(error.localizedDescription) }
     }
 
