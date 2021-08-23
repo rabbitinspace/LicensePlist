@@ -125,7 +125,7 @@ class PlistInfoTests: XCTestCase {
                                         state: .init(branch: nil,
                                                      revision: nil,
                                                      version: "1.2.2"))
-        let swiftPackageLicense = SwiftPackageLicense(library: swiftPackage, body: "Do whatever you want")
+        let swiftPackageLicense = SwiftPackageLicense(name: swiftPackage.name, library: swiftPackage, body: "Do whatever you want")
         
         target.manualLicenses = [manualLicense]
         target.githubLicenses = [githubLicense]
@@ -168,7 +168,7 @@ class PlistInfoTests: XCTestCase {
                                         state: .init(branch: nil,
                                                      revision: nil,
                                                      version: "1.2.2"))
-        let swiftPackageLicense = SwiftPackageLicense(library: swiftPackage, body: "Do whatever you want")
+        let swiftPackageLicense = SwiftPackageLicense(name: swiftPackage.name, library: swiftPackage, body: "Do whatever you want")
         
         target.githubLibraries = [github]
         target.swiftPackages = [swiftPackage]

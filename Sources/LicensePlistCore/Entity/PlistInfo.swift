@@ -65,7 +65,6 @@ struct PlistInfo {
 
         do {
             swiftPackageLicenses = try SwiftPackageLicense.find(atCheckoutDir: checkoutsDir, for: swiftPackages)
-            self.swiftPackages = swiftPackageLicenses?.map { $0.library }
         } catch { fatalError(error.localizedDescription) }
     }
 
@@ -160,14 +159,14 @@ struct PlistInfo {
 
         Log.info("----------Result-----------")
         Log.info("# Missing license:")
-        let allLibraries = (githubLibraries as [HasName]) + (swiftPackages as [HasName])
-        let missing = Set(allLibraries.map { $0.name }).subtracting(Set(licenses.map { $0.name }))
-        if missing.isEmpty {
+        let missingGithubLibraries = Set(githubLibraries.map { $0.name }).subtracting(Set(licenses.map { $0.name }))
+        let missingSwiftPackages = Set(swiftPackages).subtracting(Set(licenses.compactMap { ($0 as? SwiftPackageLicense)?.library }))
+        if missingGithubLibraries.isEmpty && missingSwiftPackages.isEmpty {
             Log.info("None 🎉")
             return
         }
 
-        Array(missing).sorted { $0 < $1 }.forEach { Log.warning($0) }
+        (Array(missingGithubLibraries) + missingSwiftPackages.map { $0.name }).sorted { $0 < $1 }.forEach { Log.warning($0) }
         if options.config.failIfMissingLicense {
             exit(1)
         }

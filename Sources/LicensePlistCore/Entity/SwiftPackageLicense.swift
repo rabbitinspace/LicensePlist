@@ -1,6 +1,7 @@
 import Foundation
 
 struct SwiftPackageLicense: License, Equatable {
+    public let name: String
     public let library: SwiftPackage
     public let body: String
 }
@@ -59,7 +60,7 @@ private func readLicenses(at path: URL, for package: SwiftPackage) throws -> [Sw
     
     guard isDir.boolValue else {
         let body = try String(contentsOfFile: path.path)
-        return [SwiftPackageLicense(library: package, body: body)]
+        return [SwiftPackageLicense(name: package.name, library: package, body: body)]
     }
     
     var licenses = [SwiftPackageLicense]()
@@ -70,9 +71,8 @@ private func readLicenses(at path: URL, for package: SwiftPackage) throws -> [Sw
         guard comps.count > 1 else { continue }
         
         let suffix = comps[1...].joined(separator: ".")
-        let package = SwiftPackage(package: suffix, repositoryURL: package.repositoryURL, state: package.state)
         let body = try String(contentsOfFile: path.appendingPathComponent(item).path)
-        licenses.append(SwiftPackageLicense(library: package, body: body))
+        licenses.append(SwiftPackageLicense(name: suffix, library: package, body: body))
     }
     
     return licenses
