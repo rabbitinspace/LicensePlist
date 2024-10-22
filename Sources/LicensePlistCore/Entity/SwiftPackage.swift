@@ -14,14 +14,14 @@ public struct SwiftPackage: Decodable, Equatable {
         let version: String?
     }
 
-    let package: String
-    let repositoryURL: URL
+    let identity: String
+    let location: URL
     let state: State
 }
 
 extension SwiftPackage: Library {
     public var version: String? { state.version }
-    public var name: String { package }
+    public var name: String { identity }
     public var nameSpecified: String? { nil }
 }
 
@@ -32,11 +32,7 @@ extension SwiftPackage: CustomStringConvertible {
 }
 
 private struct ResolvedPackages: Decodable {
-    struct Pins: Decodable {
-        let pins: [SwiftPackage]
-    }
-
-    let object: Pins
+    let pins: [SwiftPackage]
     let version: Int
 }
 
@@ -46,13 +42,13 @@ extension SwiftPackage {
         guard let data = content.data(using: .utf8) else { return [] }
         guard let resolvedPackages = try? JSONDecoder().decode(ResolvedPackages.self, from: data) else { return [] }
 
-        return resolvedPackages.object.pins
+        return resolvedPackages.pins
     }
 
     func toGitHub(renames: [String: String]) -> GitHub? {
-        guard repositoryURL.absoluteString.contains("github.com") else { return nil }
+        guard location.absoluteString.contains("github.com") else { return nil }
 
-        let urlParts = repositoryURL.absoluteString
+        let urlParts = location.absoluteString
             .replacingOccurrences(of: "https://", with: "")
             .replacingOccurrences(of: "http://", with: "")
             .components(separatedBy: "/")
@@ -66,7 +62,7 @@ extension SwiftPackage {
         }
 
         return GitHub(name: name,
-                      nameSpecified: renames[name] ?? package,
+                      nameSpecified: renames[name] ?? identity,
                       owner: owner,
                       version: state.version)
     }

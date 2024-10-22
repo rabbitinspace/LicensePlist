@@ -120,8 +120,8 @@ class PlistInfoTests: XCTestCase {
         let manualLicense = ManualLicense(library: manual,
                                           body: "body")
         
-        let swiftPackage = SwiftPackage(package: "Example",
-                                        repositoryURL: URL(string: "https://github.com/example/example.git")!,
+        let swiftPackage = SwiftPackage(identity: "Example",
+                                        location: URL(string: "https://github.com/example/example.git")!,
                                         state: .init(branch: nil,
                                                      revision: nil,
                                                      version: "1.2.2"))
@@ -163,8 +163,8 @@ class PlistInfoTests: XCTestCase {
                                                                           kind: LicenseKindResponse(name: "name",
                                                                                                     spdxId: nil)))
         
-        let swiftPackage = SwiftPackage(package: "Example",
-                                        repositoryURL: URL(string: "https://github.com/example/example.git")!,
+        let swiftPackage = SwiftPackage(identity: "Example",
+                                        location: URL(string: "https://github.com/example/example.git")!,
                                         state: .init(branch: nil,
                                                      revision: nil,
                                                      version: "1.2.2"))

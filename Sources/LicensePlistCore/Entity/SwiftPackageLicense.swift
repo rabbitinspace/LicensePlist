@@ -13,7 +13,7 @@ extension SwiftPackageLicense {
     
     public static func find(atCheckoutDir dir: URL, for packages: [SwiftPackage]) throws -> [SwiftPackageLicense] {
         var licenses = [SwiftPackageLicense]()
-        let reponames = Dictionary(uniqueKeysWithValues: packages.map({ ($0.repositoryURL.lastPathComponent.deletingSuffix(".git"), $0) }))
+        let reponames = Dictionary(uniqueKeysWithValues: packages.map({ ($0.location.lastPathComponent.deletingSuffix(".git"), $0) }))
         let packages = Dictionary(uniqueKeysWithValues: packages.map({ ($0.name, $0) }))
         for subdir in try FileManager.default.contentsOfDirectory(atPath: dir.path) {
             let subdirURL = dir.appendingPathComponent(subdir)
