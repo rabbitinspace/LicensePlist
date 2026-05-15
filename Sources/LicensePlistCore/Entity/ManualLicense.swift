@@ -1,5 +1,4 @@
 import Foundation
-import LoggerAPI
 
 public struct ManualLicense: License, Equatable {
     public let library: Manual

@@ -1,5 +1,4 @@
 import Foundation
-import LoggerAPI
 
 struct LicenseMarkdownHolder {
     let markdown: String
@@ -15,7 +14,7 @@ struct LicenseMarkdownHolder {
         do {
             try markdown.data(using: .utf8)!.write(to: markdownPath)
         } catch let e {
-            Log.error("Failed to write to (markdownPath: \(markdownPath)).\nerror: \(e)")
+            Logger.error("Failed to write to (markdownPath: \(markdownPath)).\nerror: \(e)")
         }
 
     }

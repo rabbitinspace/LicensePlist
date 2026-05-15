@@ -1,6 +1,4 @@
 import Foundation
-import APIKit
-import LoggerAPI
 import Yaml
 
 public class Manual: Library {
@@ -55,7 +53,7 @@ extension Manual {
                     let url = configBasePath.appendingPathComponent(valuePair.value.string!)
                     body = try! String(contentsOf: url)
                 default:
-                    Log.warning("Tried to parse an unknown YAML key")
+                    Logger.warning("Tried to parse an unknown YAML key")
                 }
             }
             let manual = Manual(name: name, source: source, nameSpecified: renames[name], version: version)

@@ -44,26 +44,4 @@ extension SwiftPackage {
 
         return resolvedPackages.pins
     }
-
-    func toGitHub(renames: [String: String]) -> GitHub? {
-        guard location.absoluteString.contains("github.com") else { return nil }
-
-        let urlParts = location.absoluteString
-            .replacingOccurrences(of: "https://", with: "")
-            .replacingOccurrences(of: "http://", with: "")
-            .components(separatedBy: "/")
-
-        let name = urlParts.last?.deletingSuffix(".git") ?? ""
-        let owner: String
-        if urlParts.count >= 3 {
-            owner = urlParts[urlParts.count - 2]
-        } else {
-            owner = urlParts.first?.components(separatedBy: ":").last ?? ""
-        }
-
-        return GitHub(name: name,
-                      nameSpecified: renames[name] ?? identity,
-                      owner: owner,
-                      version: state.version)
-    }
 }

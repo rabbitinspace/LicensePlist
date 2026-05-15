@@ -11,10 +11,6 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser.git",
                  from: "0.3.2"),
-        .package(url: "https://github.com/ishkawa/APIKit.git",
-                 from: "5.2.0"),
-        .package(url: "https://github.com/Kitura/HeliumLogger.git",
-                 from: "1.9.0"),
         .package(url: "https://github.com/behrang/YamlSwift.git",
                  from: "3.4.4"),
         .package(url: "https://github.com/Kitura/swift-html-entities.git",
@@ -26,14 +22,11 @@ let package = Package(
             dependencies: [
                 "LicensePlistCore",
                 "ArgumentParser",
-                "HeliumLogger",
             ]
         ),
         .target(
             name: "LicensePlistCore",
             dependencies: [
-                "APIKit",
-                "HeliumLogger",
                 "HTMLEntities",
                 "Yaml",
             ]

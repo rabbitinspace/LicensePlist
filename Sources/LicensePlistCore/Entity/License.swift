@@ -1,6 +1,4 @@
 import Foundation
-import APIKit
-import LoggerAPI
 
 public protocol LicenseInfo: HasName {
     var body: String { get }

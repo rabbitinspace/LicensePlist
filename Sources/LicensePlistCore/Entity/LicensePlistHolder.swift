@@ -1,5 +1,4 @@
 import Foundation
-import LoggerAPI
 
 struct LicensePlistHolder {
     let root: Data
@@ -71,7 +70,7 @@ struct LicensePlistHolder {
                 try $0.1.write(to: itemsPath.appendingPathComponent("\($0.0.name).plist"))
             }
         } catch let e {
-            Log.error("Failed to write to (rootPath: \(rootPath), itemsPath: \(itemsPath)).\nerror: \(e)")
+            Logger.error("Failed to write to (rootPath: \(rootPath), itemsPath: \(itemsPath)).\nerror: \(e)")
         }
 
     }

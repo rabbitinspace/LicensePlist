@@ -1,23 +1,29 @@
-import HeliumLogger
-import LoggerAPI
+import Foundation
+
+struct StandardError: TextOutputStream {
+    private static let handle = FileHandle.standardError
+
+    public func write(_ string: String) {
+        Self.handle.write(Data(string.utf8))
+    }
+}
 
 public struct Logger {
-    public static func configure() {
-        let logger = createDefaultLogger()
-//        let logger = createDebugLogger()
-        logger.colored = true
-        Log.logger = logger
+    private static var stderr = StandardError()
+    
+    public static func error(_ message: String) {
+        Self.log(level: "ERROR", message: message)
+    }
+    
+    public static func warning(_ message: String) {
+        Self.log(level: "WARNING", message: message)
     }
 
-    private static func createDefaultLogger() -> HeliumLogger {
-        let logger = HeliumLogger(LoggerMessageType.info)
-        logger.details = false
-        return logger
+    public static func info(_ message: String) {
+        Self.log(level: "INFO", message: message)
     }
-
-    private static func createDebugLogger() -> HeliumLogger {
-        let logger = HeliumLogger(LoggerMessageType.debug)
-        logger.details = true
-        return logger
+    
+    private static func log(level: String, message: String) {
+        print("[\(level)]: \(message)", to: &Self.stderr)
     }
 }

@@ -1,20 +1,6 @@
 import Foundation
-import LoggerAPI
 
 extension URL: LicensePlistCompatible {}
-
-extension LicensePlistExtension where Base == URL {
-    func download() -> ResultOperation<String, Error> {
-        let operation = ResultOperation<String, Error> { _ in
-            do {
-                return Result(catching: {
-                    try String(contentsOf: self.base)
-                })
-            }
-        }
-        return operation
-    }
-}
 
 private let fm = FileManager.default
 extension LicensePlistExtension where Base == URL {
@@ -29,7 +15,7 @@ extension LicensePlistExtension where Base == URL {
 
     public func read() -> String? {
         if !isExists {
-            Log.warning("Not found: \(base).")
+            Logger.warning("Not found: \(base).")
             return nil
         }
         return getResultOrDefault {
@@ -85,7 +71,7 @@ extension LicensePlistExtension where Base == URL {
     private func handle(error: Error) {
         let message = String(describing: error)
         assertionFailure(message)
-        Log.error(message)
+        Logger.error(message)
     }
     internal var fileURL: URL {
         return URL(fileURLWithPath: base.absoluteString)

@@ -1,9 +1,7 @@
 import Foundation
-import LoggerAPI
 import Yaml
 
 public struct Config {
-    let githubs: [GitHub]
     let manuals: [Manual]
     let excludes: [String]
     let renames: [String: String]
@@ -13,7 +11,7 @@ public struct Config {
     public var singlePage = false
     public var failIfMissingLicense = false
 
-    public static let empty = Config(githubs: [], manuals: [], excludes: [], renames: [:])
+    public static let empty = Config(manuals: [], excludes: [], renames: [:])
 
     public init(yaml: String, configBasePath: URL) {
         let value = try! Yaml.load(yaml)
@@ -26,29 +24,10 @@ public struct Config {
             } ?? [:]
         let manuals = value["manual"].array ?? []
         let manualList = Manual.load(manuals, renames: renames, configBasePath: configBasePath)
-        let githubs = value["github"].array?.map { $0.string }.compactMap { $0 } ?? []
-        let gitHubList = githubs.map { GitHub.load(.licensePlist(content: $0), renames: renames) }.flatMap { $0 }
-        gitHubList.forEach {
-            Log.warning("\($0.name) is specified by the depricated format. It will be removed at Version 2." +
-                "See: https://github.com/mono0926/LicensePlist/blob/master/Tests/LicensePlistTests/Resources/license_plist.yml .")
-        }
-        let githubsVersion: [GitHub] = value["github"].array?.map {
-            guard let dictionary = $0.dictionary else {
-                return nil
-            }
-            guard let owner = dictionary["owner"]?.string, let name = dictionary["name"]?.string else {
-                return nil
-            }
-            return GitHub(name: name,
-                          nameSpecified: renames[name],
-                          owner: owner,
-                          version: dictionary["version"]?.string)
-            }.compactMap { $0 } ?? []
-        self = Config(githubs: githubsVersion + gitHubList, manuals: manualList, excludes: excludes, renames: renames)
+        self = Config(manuals: manualList, excludes: excludes, renames: renames)
     }
 
-    public init(githubs: [GitHub], manuals: [Manual], excludes: [String], renames: [String: String]) {
-        self.githubs = githubs
+    public init(manuals: [Manual], excludes: [String], renames: [String: String]) {
         self.manuals = manuals
         self.excludes = excludes
         self.renames = renames
@@ -76,7 +55,7 @@ public struct Config {
         let regex = try! NSRegularExpression(pattern: "^/(.+)/$", options: [])
         let matches = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsText.length))
         if matches.count > 1 {
-            Log.warning("\(text) contains multiple regex pattern(sandwitched by `/`), but those are ignored except for first one.")
+            Logger.warning("\(text) contains multiple regex pattern(sandwitched by `/`), but those are ignored except for first one.")
         }
         guard let match = matches.first else {
             return nil
@@ -94,15 +73,10 @@ public struct Config {
             let name = $0.name
             let result = !excluded(name: name)
             if !result {
-                Log.warning("\(type(of: $0.self))'s \(name) was excluded according to config YAML.")
+                Logger.warning("\(type(of: $0.self))'s \(name) was excluded according to config YAML.")
             }
             return result
         }
-    }
-
-    func apply(githubs: [GitHub]) -> [GitHub] {
-        self.githubs.forEach { Log.warning("\($0.name) was loaded from config YAML.") }
-        return filterExcluded((self.githubs + githubs))
     }
 
     func applyManual(manuals: [Manual]) -> [Manual] {
@@ -112,8 +86,7 @@ public struct Config {
 
 extension Config: Equatable {
     public static func==(lhs: Config, rhs: Config) -> Bool {
-        return lhs.githubs == rhs.githubs &&
-            lhs.manuals == rhs.manuals &&
+        return lhs.manuals == rhs.manuals &&
             lhs.excludes == rhs.excludes &&
             lhs.renames == rhs.renames
     }

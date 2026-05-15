@@ -1,5 +1,4 @@
 import Foundation
-import LoggerAPI
 import HTMLEntities
 
 struct LicenseHTMLHolder {
@@ -37,7 +36,8 @@ struct LicenseHTMLHolder {
         do {
             try html.data(using: .utf8)!.write(to: htmlPath)
         } catch let e {
-            Log.error("Failed to write to (htmlPath: \(htmlPath)).\nerror: \(e)")
+            
+            Logger.error("Failed to write to (htmlPath: \(htmlPath)).\nerror: \(e)")
         }
 
     }

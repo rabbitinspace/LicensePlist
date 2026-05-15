@@ -1,7 +1,6 @@
 import ArgumentParser
 import Foundation
 import LicensePlistCore
-import LoggerAPI
 
 private func loadConfig(configPath: URL) -> Config {
     if let yaml = configPath.lp.read() {
@@ -71,7 +70,6 @@ struct LicensePlist: ParsableCommand {
 	var failIfMissingLicense = false
 
 	func run() throws {
-		Logger.configure()
 		var config = loadConfig(configPath: URL(fileURLWithPath: configPath))
 		config.force = force
 		config.addVersionNumbers = addVersionNumbers
